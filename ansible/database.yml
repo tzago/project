@@ -1,0 +1,10 @@
+---
+- hosts: database
+  become: true
+  vars_files:
+      - secret
+  roles:
+      - role: mysql
+        db_user_name: "{{db_user}}"
+        db_user_pass: "{{db_pass}}"
+        db_user_host: "%"

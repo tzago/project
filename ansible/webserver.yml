@@ -1,0 +1,10 @@
+---
+ - hosts: webserver
+   become: TRUE
+   vars_files:
+       - secret
+   roles:
+       - apache2
+       - demo_app    
+     
+    

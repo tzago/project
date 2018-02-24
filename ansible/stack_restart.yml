@@ -1,0 +1,48 @@
+---
+# Bring stack down
+- hosts: loadbalancer
+  become: TRUE
+  vars_files:
+      - secret
+
+  tasks:
+      - service: name=nginx state=stopped
+      - wait_for: port=80 state=drained #no new traffic
+
+- hosts: webserver
+  become: TRUE
+  vars_files:
+      - secret
+  tasks:
+      - service: name=apache2 state=stopped
+      - wait_for: port=80 state=stopped
+
+#Restart mysql
+
+- hosts: database
+  become: TRUE
+  vars_files:
+      - secret
+  tasks:
+      - service: name=mysql state=restarted
+      - wait_for: host={{ansible_ens192.ipv4.address}} port=3306 state=started
+
+
+#Bring Stack up 
+
+- hosts: webserver
+  become: TRUE
+  vars_files:
+      - secret
+  tasks:
+      - service: name=apache2 state=started
+      - wait_for: port=80
+
+- hosts: loadbalancer
+  become: TRUE
+  vars_files:
+      - secret
+  tasks:
+      - service: name=nginx state=started
+      - wait_for: port=80
+
